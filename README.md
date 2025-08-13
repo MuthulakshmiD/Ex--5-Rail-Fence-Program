@@ -27,62 +27,36 @@ STEP-5: Read the characters row wise or column wise in the former order to get t
 Name: Muthulakshmi D
 Reg : 212223040122
 ```
-def rail_fence_encrypt(message, rails):
-    len_msg = len(message)
-    code = [['\n'] * len_msg for _ in range(rails)]  # Initialize grid with newlines
-    
-    row, direction = 0, 1  # Start at row 0, moving downward
-    for j in range(len_msg):
-        code[row][j] = message[j]
-        row += direction
-        if row == rails - 1 or row == 0:
-            direction *= -1  # Change direction at top or bottom
+### 5 rail
+def rail_fence(text, rails, mode='encrypt'):
+    fence = [[] for _ in range(rails)]
+    rail, step = 0, 1
 
-    encrypted_text = ''.join(code[i][j] for i in range(rails) for j in range(len_msg) if code[i][j] != '\n')
-    return encrypted_text
+    for i in range(len(text)):
+        fence[rail].append(i if mode == 'decrypt' else text[i])
+        rail += step
+        if rail == 0 or rail == rails - 1:
+            step *= -1
 
-def rail_fence_decrypt(encrypted_text, rails):
-    len_msg = len(encrypted_text)
-    code = [['\n'] * len_msg for _ in range(rails)]
-    
-    # Mark the zigzag pattern positions
-    row, direction = 0, 1
-    for j in range(len_msg):
-        code[row][j] = '*'
-        row += direction
-        if row == rails - 1 or row == 0:
-            direction *= -1
+    if mode == 'encrypt':
+        return ''.join(''.join(row) for row in fence)
 
-    # Fill the pattern with the actual encrypted characters
-    index = 0
-    for i in range(rails):
-        for j in range(len_msg):
-            if code[i][j] == '*' and index < len_msg:
-                code[i][j] = encrypted_text[index]
-                index += 1
+    # For decryption
+    order = [i for row in fence for i in row]
+    decrypted = [''] * len(text)
+    for idx, i in enumerate(order):
+        decrypted[i] = text[idx]
+    return ''.join(decrypted)
 
-    # Read the message in a zigzag pattern
-    row, direction = 0, 1
-    decrypted_text = []
-    for j in range(len_msg):
-        decrypted_text.append(code[row][j])
-        row += direction
-        if row == rails - 1 or row == 0:
-            direction *= -1
+msg = input("Enter a Secret Message: ")
+r = int(input("Enter number of rails: "))
 
-    return ''.join(decrypted_text)
+enc = rail_fence(msg, r, 'encrypt')
+dec = rail_fence(enc, r, 'decrypt')
 
-# Input from user
-message = input("Enter a Secret Message: ")
-rails = int(input("\nEnter number of rails: "))
+print("\nEncrypted Message:", enc)
+print("Decrypted Message:", dec)
 
-# Encrypt and Decrypt
-encrypted_message = rail_fence_encrypt(message, rails)
-decrypted_message = rail_fence_decrypt(encrypted_message, rails)
-
-# Output results
-print("\nEncrypted Message:", encrypted_message)
-print("\nDecrypted Message:", decrypted_message)
 ```
 
 # OUTPUT
